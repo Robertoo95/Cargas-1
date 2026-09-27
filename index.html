@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Cargas</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#f2f2f7;color:#111;min-height:100vh}
+main{max-width:520px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+h1{text-align:center;font-size:30px;margin:8px 0 4px}
+#date{text-align:center;color:#777;margin-bottom:18px;text-transform:capitalize}
+.card{background:#fff;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.total{text-align:center;font-size:64px;font-weight:800;line-height:1;margin:5px 0}
+.caption{text-align:center;color:#777;font-size:15px}
+.add{display:block;width:100%;border:0;border-radius:18px;background:#111;color:#fff;font-size:28px;font-weight:800;padding:22px;margin-top:18px;min-height:78px}
+.add:active{transform:scale(.98);opacity:.85}
+.row{display:flex;align-items:center;justify-content:space-between;padding:15px 2px;border-bottom:1px solid #eee}
+.row:last-child{border-bottom:0}
+.num{font-size:21px;font-weight:700}.time{font-size:18px;color:#555}
+.undo{width:100%;border:0;border-radius:14px;background:#e5e5ea;padding:14px;font-size:17px;font-weight:650;margin-top:12px}
+.empty{text-align:center;color:#888;padding:16px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>🚜 Cargas</h1>
+<div id="date"></div>
+
+<section class="card">
+<div class="caption">TOTAL DE CARGAS</div>
+<div class="total" id="total">0</div>
+<button class="add" id="add">＋ CARGA</button>
+</section>
+
+<section class="card">
+<div id="list"><div class="empty">Presiona “+ CARGA” para empezar.</div></div>
+<button class="undo" id="undo">↩ Deshacer última carga</button>
+</section>
+</main>
+
+<script>
+(function(){
+const todayKey=()=>{const d=new Date();return 'cargas_'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let key=todayKey(), loads=JSON.parse(localStorage.getItem(key)||'[]');
+
+function save(){localStorage.setItem(key,JSON.stringify(loads));render()}
+function timeNow(){
+ return new Date().toLocaleTimeString('es-US',{hour:'numeric',minute:'2-digit',second:'2-digit'});
+}
+function render(){
+ document.getElementById('date').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+ document.getElementById('total').textContent=loads.length;
+ const list=document.getElementById('list');
+ if(!loads.length){list.innerHTML='<div class="empty">Presiona “+ CARGA” para empezar.</div>';return}
+ list.innerHTML=loads.map((x,i)=>`<div class="row"><div class="num">Carga #${i+1}</div><div class="time">${x}</div></div>`).join('');
+}
+document.getElementById('add').addEventListener('click',()=>{
+ loads.push(timeNow());save();
+ if(navigator.vibrate) navigator.vibrate(45);
+});
+document.getElementById('undo').addEventListener('click',()=>{
+ if(loads.length){loads.pop();save();if(navigator.vibrate)navigator.vibrate(25)}
+});
+render();
+})();
+</script>
+</body>
+</html>
